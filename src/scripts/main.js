@@ -18,7 +18,7 @@ const bloomParams = {
 const speedCamera = {
     current: 1000,
     max: 1000,
-    min: 0
+    min: 0,
 };
 
 const scene = new THREE.Scene();
@@ -67,7 +67,23 @@ document.addEventListener('click', (e) => {
     const intersects = raycaster.intersectObjects( scene.children );
     if(intersects.length > 0) {
         const unit = intersects[0].object;
-        generateLinks(unit);
+        if(!unit.isData || unit.flag) return;
+        unit.flag = true;
+
+        if ((selectedUnits.length < 2) && !selectedUnits.includes(unit)) {
+            selectedUnits.push(unit);
+            generateLinks(unit);
+
+        } else if ((selectedUnits.length === 2) && !selectedUnits.includes(unit)) {
+            removeLines(selectedUnits[selectedUnits.length-1]);
+            generateLinks(unit);
+            selectedUnits.splice(-1);
+            selectedUnits.push(unit);
+            
+        } else if (selectedUnits.includes(unit)) {
+            removeLines(unit);
+            selectedUnits.splice(selectedUnits.indexOf(unit), 1);
+        }
     }
 });
 
@@ -110,11 +126,24 @@ const animate = function () {
     camera.position.z = Math.sin( cos ) * 40;
     camera.position.y = Math.cos( cos ) * 15 + 5;
     
-    lineList.forEach(e => {
-        if(e.actions.scale < 1) {
-            e.actions.scale += 0.02;
-            scaleLine(e);
-        }
+    lineList.forEach((e, i) => {
+        e.forEach(line => {
+            if ((line.actions.scale < 1) && !line.removeLine) {
+                line.actions.scale += 0.02;
+                scaleLine(line);
+            } else if (line.removeLine) {
+                if(line.actions.scale <= 0) {
+                    scene.remove(line);
+                    lineList[i].splice(lineList[i].indexOf(line), 1);
+                    line.meshOrigin.flag = false;
+                } else {
+                    line.actions.scale -= 0.02;
+                    scaleLine(line);
+                }
+            } else {
+                line.meshOrigin.flag = false;
+            }
+        })
     });
 
     camera.lookAt( scene.position );
@@ -146,8 +175,8 @@ function generateUnit(data, color="lightblue") {
             return generateUnit(data, color);
         }
     }
-
     mesh.userData = data;
+    mesh.isData = true;
 
     scene.add( mesh );
     unitList.push(mesh);
@@ -162,6 +191,9 @@ function generateLinks(mesh) {
     })
 }
 function buildLink(mesh1, mesh2, color="red") {
+    lineList[mesh1.id] = lineList[mesh1.id] || [];
+    if (lineList[mesh1.id].filter((e) => e.meshDestination.id === mesh2.id).length > 0) return;
+
     const geometry = new THREE.TubeGeometry(
         new THREE.CatmullRomCurve3([
             mesh1.position,
@@ -182,8 +214,10 @@ function buildLink(mesh1, mesh2, color="red") {
     line.actions = {
         scale: 0,
     };
-    line.originPos = mesh1.position;
-    lineList.push(line);
+    line.meshDestination = mesh2;
+    line.meshOrigin = mesh1;
+    line.removeLine = false;
+    lineList[mesh1.id].push(line);
 }
 
 // Check :
@@ -200,8 +234,15 @@ function checkCollision(unit1, unit2) {
 function scaleLine(line) {
     line.scale.set(line.actions.scale, line.actions.scale, line.actions.scale);
     line.position.set(
-        line.originPos.x * (1 - line.actions.scale),
-        line.originPos.y * (1 - line.actions.scale),
-        line.originPos.z * (1 - line.actions.scale)
+        line.meshOrigin.position.x * (1 - line.actions.scale),
+        line.meshOrigin.position.y * (1 - line.actions.scale),
+        line.meshOrigin.position.z * (1 - line.actions.scale)
     );
+}
+function removeLines(mesh) {
+    lineList[mesh.id].forEach(line => {
+        line.removeLine = true;
+    });
+    mesh.flag = false;
+    // lineList[mesh.id] = [];
 }
