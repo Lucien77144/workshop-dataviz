@@ -1,0 +1,72 @@
+/* Mixins */
+
+@mixin grid($columns, $occupation, $cg, $rg) {
+  display: grid;
+  grid-template-columns: repeat($columns, $occupation);
+  column-gap: #{$cg}rem;
+  row-gap: #{$rg}rem;
+}
+
+@mixin resetAppearance() {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  font: inherit;
+}
+
+@mixin buttonResetAppearance() {
+  @include resetAppearance();
+  border: none;
+  background: none;
+  cursor: pointer;
+  outline: none;
+  border-radius: 0;
+}
+
+@mixin mq-320 {
+  @media screen and (max-width: $viewport-320) {
+    @content;
+  }
+}
+
+@mixin mq-375 {
+  @media screen and (max-width: $viewport-375) {
+    @content;
+  }
+}
+
+@mixin mq-480 {
+  @media screen and (max-width: $viewport-480) {
+    @content;
+  }
+}
+
+@mixin mq-768 {
+  @media screen and (max-width: $viewport-768) {
+    @content;
+  }
+}
+
+@mixin mq-1024 {
+  @media screen and (max-width: $viewport-1024) {
+    @content;
+  }
+}
+
+@mixin mq-1200 {
+  @media screen and (max-width: $viewport-1200) {
+    @content;
+  }
+}
+
+@mixin mq-1400 {
+  @media screen and (max-width: $viewport-1400) {
+    @content;
+  }
+}
+
+@mixin mq-1600 {
+  @media screen and (max-width: $viewport-1600) {
+    @content;
+  }
+}

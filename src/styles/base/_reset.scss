@@ -1,0 +1,84 @@
+/* Reset styles */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-size: 1.6rem;
+  font-family: $font-family-default;
+  font-variation-settings: "wght" 400;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  font-size: inherit;
+  display: inline-block;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  border: none;
+  background-image: none;
+  background-color: transparent;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border-radius: 0;
+  color: inherit;
+}
+
+input {
+  width: 100%;
+}
+
+input[type='search'] {
+  -webkit-appearance: none;
+}
+
+ul {
+  list-style-type: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+small {
+  font-size: inherit;
+}
+
+img,
+video {
+  height: auto;
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}

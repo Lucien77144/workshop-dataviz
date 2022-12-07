@@ -1,0 +1,42 @@
+/* Variables */
+
+/* Colors */
+
+$black: #040406;
+$white: #F6E6D7;
+$translucent-white: #ffffff2f;
+$dark-grey: #493b25;
+$primary: #EC915A;
+$active-primary: #897940;
+$error: rgb(193, 0, 0);
+$translucent-error: rgba(183, 125, 125, 0.35);
+$hover : #EC915A;
+
+$green: #897940;
+$blue: #414187;
+$orange: #EC915A;
+$purple: #E98A98;
+
+$room-colors: $green, $blue, $orange, $purple;
+
+/* Fonts */
+
+$font-family-default: 'InterTight', sans-serif;
+$font-family-secondary: Times, serif;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+
+/* Font-sizes */
+
+/* Font-weights */
+
+/* Breakpoints */
+
+$viewport-320: 319px;
+$viewport-375: 374px;
+$viewport-480: 479px;
+$viewport-768: 767px;
+$viewport-1024: 1023px;
+$viewport-1200: 1199px;
+$viewport-1400: 1399px;
+$viewport-1600: 1599px;
