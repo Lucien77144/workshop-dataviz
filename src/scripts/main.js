@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-// import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 if(!THREE) throw new Error('THREE is not defined');
 
@@ -10,6 +10,11 @@ const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
 }
+const bloomParams = {
+    bloomStrength: 1,
+    bloomThreshold: .25,
+    bloomRadius: .25
+};
 
 const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
@@ -29,18 +34,6 @@ window.addEventListener( 'resize', ()=>{
     renderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) );
 });
 
-// const renderScene = new RenderPass( scene, camera );
-// const bloomPass = new UnrealBloomPass( new THREE.Vector2( sizes.width, sizes.height ), 1.5, 0.4, 0.85 );
-// bloomPass.threshold = 0;
-// bloomPass.strength = 2;
-// bloomPass.radius = 0;
-
-// const bloomComposer = new THREE.EffectComposer( renderer );
-// bloomComposer.setSize( sizes.width, sizes.height );
-// bloomComposer.renderToScreen = true;
-// bloomComposer.addPass( renderScene );
-// bloomComposer.addPass( bloomPass );
-
 renderer.setSize( sizes.width, sizes.height );
 document.body.appendChild( renderer.domElement );
 renderer.setPixelRatio( window.devicePixelRatio );
@@ -48,8 +41,8 @@ renderer.setPixelRatio( window.devicePixelRatio );
 fetch('http://localhost:1234/data/data.json').then(response => {
     return response.json()
 }).then(json => {
-    json.users.forEach(e => {
-        generateUnit();
+    json.users.forEach(data => {
+        generateUnit(data);
     });
     generateLink(unitList[0], unitList[1]);
 });
@@ -65,6 +58,16 @@ light.position.y = 3
 light.position.z = 4
 scene.add(light)
 
+const renderScene = new RenderPass( scene, camera );
+const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+bloomPass.threshold = bloomParams.bloomThreshold;
+bloomPass.strength = bloomParams.bloomStrength;
+bloomPass.radius = bloomParams.bloomRadius;
+
+composer = new EffectComposer( renderer );
+composer.addPass( renderScene );
+composer.addPass( bloomPass );
+
 const animate = function () {
     const elapsedTime = clock.getElapsedTime();
 
@@ -77,13 +80,12 @@ const animate = function () {
     lineList.forEach(e => {
         if(e.actions.scale < 1) {
             e.actions.scale += 0.02;
-            scaleLine(e, e.actions.scale);
+            scaleLine(e);
         }
     });
 
     camera.lookAt( scene.position );
-    renderer.render( scene, camera );
-    // bloomComposer.render();
+    composer.render();
 }
 animate();
 
@@ -99,10 +101,10 @@ function checkCollision(unit1, unit2) {
         return false;
     }
 }
-function generateUnit() {
+function generateUnit(data) {
     const geometry = new THREE.DodecahedronGeometry( 1, 0 );
     const material = new THREE.MeshStandardMaterial({
-        color: 0xffffff, 
+        color: 'lightblue', 
     });
     const cube = new THREE.Mesh( geometry, material );
 
@@ -143,13 +145,14 @@ function generateLink(Mesh1, Mesh2, color="red") {
     line.actions = {
         scale: 0,
     };
+    line.originPos = Mesh1.position;
     lineList.push(line);
 }
-function scaleLine(line, scale) {
-    line.scale.set(scale, scale, scale);
+function scaleLine(line) {
+    line.scale.set(line.actions.scale, line.actions.scale, line.actions.scale);
     line.position.set(
-        unitList[0].position.x * (1 - scale),
-        unitList[0].position.y * (1 - scale),
-        unitList[0].position.z * (1 - scale)
+        line.originPos.x * (1 - line.actions.scale),
+        line.originPos.y * (1 - line.actions.scale),
+        line.originPos.z * (1 - line.actions.scale)
     );
 }
