@@ -4,19 +4,93 @@
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Dataviz - workshop</title>
-    <link rel="stylesheet" href="assets/fonts/inter-tight/style.css"/>
+    <title>matching_movie.mp4</title>
     <script type="module" src="app.js"></script>
+    <link rel="shortcut icon" href="./img/favicon.svg" type="image/x-icon">
 </head>
 <body>
+    <!-- <div class="intro">
+        <h1>
+            <span>matching_movie.mp4</span>
+            <img src="./img/logo.svg" alt="">
+        </h1>
+        <div class="intro-content">
+            <strong>Observer les préférences cinématographiques des BDDI !</strong><br>
+            Chaque particule correspond à un profil.<br>
+            Vous pouvez : 
+            <ul>
+                <li>
+                    classer les données selon des filtres
+                </li>
+                <li>
+                    sélectionner une particule pour voir les points communs avec les autres profils
+                </li>
+                <li>
+                    sélectionner 2 particules pour réaliser le matching parfait selon leurs préférences, et créer une image ! 
+                </li>
+            </ul>
+        </div>
+        <button class="btn btn-start">
+            let's go
+            <img src="./img/start.svg" alt="">
+        </button>
+    </div> -->
     <div class="overlay">
         <div class="line">
-            <h1>matching_movie.mp4</h1>
-            <h3>by Lucien & lucie</h3>
+            <h1><a href="">matching_movie.mp4</a></h1>
+            <h3>by <a target="_blank" class="animated" href="https://lucienboisseau.fr/en/">Lucien</a> & <a target="_blank" class="animated" href="https://www.linkedin.com/in/lucie-bouana-61aa06201/">Lucie</a></h3>
         </div>
         <div class="line">
-            <h3>about</h3>
-            <h3>BDDI 2023</h3>
+            <div class="about">
+                <h3 class="about-title">about</h3>
+                <div class="about-popin">
+                    <strong>Observer les préférences cinématographiques des BDDI !</strong><br>
+                    Chaque particule correspond à un profil.<br>
+                    Vous pouvez : 
+                    <ul>
+                        <li>
+                            classer les données selon des filtres
+                        </li>
+                        <li>
+                            sélectionner une particule pour voir les points communs avec les autres profils
+                        </li>
+                        <li>
+                            sélectionner 2 particules pour réaliser le matching parfait selon leurs préférences, et créer une image ! 
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <h3>Gobelins - BDDI 2023</h3>
+        </div>
+    </div>
+    <div class="stats">
+        <div class="btn btn-reset">
+            reset !
+        </div>
+        <div class="stats-content">
+            <section class="section section-filter">
+                <h2>Classer par</h2>
+                <ul>
+                    <li class="tag" data-value="gender">genre</li>
+                    <li class="tag" data-value="format">format</li>
+                    <li class="tag" data-value="platform">plateforme</li>
+                </ul>
+            </section>
+            <section class="section section-infos">
+                <h2>Informations</h2>
+                <div class="line">
+                    <div class="gender">
+                        <img src="img/movie.svg" alt="">
+                        <span class="field">Action</span>
+                    </div>
+                    <div class="number">
+                        <img src="img/person.svg" alt="">
+                        <span class="field">8</span>
+                        <span>&nbsp;personne(s)</span>
+                    </div>
+                </div>
+                <ul class="ages"></ul>
+            </section>
         </div>
     </div>
 </body>

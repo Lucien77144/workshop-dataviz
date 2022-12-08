@@ -1,12 +1,11 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 import cursor from '../img/cursor.svg';
 import cursorPointer from '../img/cursorPointer.svg';
-import cursorClick from '../img/cursorClick.svg';
+import bubble from '../img/bubble.svg';
 
 if(!THREE) throw new Error('THREE is not defined');
 
@@ -28,28 +27,57 @@ const speedCamera = {
 const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
 const camera = new THREE.PerspectiveCamera( 75, sizes.width / sizes.height, 0.1, 1000 );
-const controls = new OrbitControls( camera, renderer.domElement );
 const mouse = new THREE.Vector2();
 
+let userList = [];
 let unitList = [];
 let lineList = [];
 let selectedUnits = [];
 let lastHovered;
-
 let lastMove = Date.now();
+let activeFilter;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const intro = document.querySelector('.intro');
+    intro?.addEventListener('click', () => {
+        intro.animate([
+            {opacity: 1, transform: 'scale(1)'},
+            {opacity: 0, transform: 'scale(1.2)'}
+        ], {
+            duration: 1000,
+            easing: 'ease-in-out',
+            fill: 'forwards'
+        });
+        setTimeout(() => {
+            intro.remove();
+        }, 1000);
+    });
+
+    document.querySelectorAll('.tag').forEach(tag => {
+        tag.addEventListener('click', (e) => {
+            if (e.target.classList.contains('active')) {
+                e.target.classList.remove('active');
+                activeFilter = undefined;
+            } else {
+                document.querySelector('.tag.active')?.classList.remove('active');
+                e.target.classList.add('active');
+                activeFilter = e.target.attributes['data-value'].value;
+
+                if(lastHovered) {
+                    buildInfosPanel(lastHovered.userData[activeFilter]);
+                }
+            }
+        });
+    })
+});
+
 window.addEventListener( 'mousemove', (e) => {
+    if (document.querySelector('.intro') || (e.path.filter(el => (el.classList?.contains('stats'))).length > 0)) return;
     lastMove = Date.now();
 
     mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
 });
-window.addEventListener('mousedown', (e) => {
-    document.body.style.cursor = `url(${cursorClick}), pointer`;
-});
-window.addEventListener('mouseup', (e) => {
-    document.body.style.cursor = `url(${cursorPointer}), pointer`;
-});
-
 window.addEventListener( 'resize', ()=>{
     sizes.width = window.innerWidth;
     sizes.height = window.innerHeight;
@@ -62,7 +90,7 @@ window.addEventListener( 'resize', ()=>{
 renderer.setSize( sizes.width, sizes.height );
 renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setClearColor( 0x0000ff, .1);
-document.body.appendChild( renderer.domElement );
+const canvas = document.body.appendChild( renderer.domElement );
 
 fetch('http://localhost:1234/data/data.json').then(response => {
     return response.json();
@@ -70,9 +98,14 @@ fetch('http://localhost:1234/data/data.json').then(response => {
     json.users.forEach(data => {
         generateUnit(data);
     });
+    canvas.style.opacity = 1;
+
+    userList = json.users;
+    buildAges(getDiffAges(userList));
 });
 
 document.addEventListener('click', (e) => {
+    if (document.querySelector('.intro') || (e.path.filter(el => (el.classList?.contains('stats'))).length > 0)) return;
     const mouse = new THREE.Vector2();
     mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
@@ -192,7 +225,6 @@ function generateUnit(data, color="#ADD8E6") {
     });
     
     const mesh = new THREE.Mesh( geometry, material );
-    mesh.material.side = THREE.BackSide;
 
     const limitX = (sizes.width - (sizes.width * .05)) / 20;
     const limitY = (sizes.height - (sizes.height * .05)) / 20;
@@ -291,6 +323,8 @@ function manageOpacity() {
     });
 }
 function manageMouseHover() {
+    if (document.querySelector('.intro')) return;
+
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera( mouse, camera );
 
@@ -311,4 +345,36 @@ function manageMouseHover() {
         }
         document.body.style.cursor = `url(${cursor}), pointer`;
     }
+}
+function buildInfosPanel(values) {
+    const filtredValues = userList.filter(user => user[activeFilter] === values);
+    buildInfos(values, filtredValues.length);
+    buildAges(getDiffAges(filtredValues));
+}
+function buildAges(data) {
+    let htmlResult = '';
+    data.forEach((e) => {
+        const frequency = userList.filter((user) => user.age === e).length;
+        htmlResult += `
+        <li class="unit">
+            <div class="label">${e} ans</div>
+            <div class="progress">
+                <div class="value" style="width: ${frequency/userList.length*100}%;"></div>
+                <div class="bubble">
+                    <img src="${bubble}" alt="">
+                    <span>${frequency}</span>
+                </div>
+            </div>
+        </li>`;
+    });
+    document.querySelector('.ages').innerHTML = htmlResult;
+}
+function buildInfos(gender='aucun', number=0) {
+    document.querySelector('.section-infos .gender .field').innerHTML = gender;
+    document.querySelector('.section-infos .number .field').innerHTML = number;
+}
+
+// get data : 
+function getDiffAges(users) {
+    return users.map(user => user.age).filter((age, index, self) => self.indexOf(age) === index);
 }

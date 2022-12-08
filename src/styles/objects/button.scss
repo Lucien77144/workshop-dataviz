@@ -1,0 +1,22 @@
+.btn {
+    cursor: url('../img/cursorPointer.svg'), pointer;
+
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid white;
+    box-shadow: 4px 4px 0px #ffffff;
+    transition: .25s ease-in-out;
+    will-change: box-shadow;
+    white-space: nowrap;
+
+    img {
+        margin-left: 6px;
+        height: 16px;
+        width: 16px;
+        object-fit: contain;
+    }
+    &:hover {
+        box-shadow: 0px 0px 0px #ffffff;
+    }
+}

@@ -1,28 +1,5 @@
 /* Mixins */
 
-@mixin grid($columns, $occupation, $cg, $rg) {
-  display: grid;
-  grid-template-columns: repeat($columns, $occupation);
-  column-gap: #{$cg}rem;
-  row-gap: #{$rg}rem;
-}
-
-@mixin resetAppearance() {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  font: inherit;
-}
-
-@mixin buttonResetAppearance() {
-  @include resetAppearance();
-  border: none;
-  background: none;
-  cursor: pointer;
-  outline: none;
-  border-radius: 0;
-}
-
 @mixin mq-320 {
   @media screen and (max-width: $viewport-320) {
     @content;

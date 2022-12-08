@@ -2,26 +2,14 @@
 
 /* Colors */
 
-$black: #040406;
-$white: #F6E6D7;
-$translucent-white: #ffffff2f;
-$dark-grey: #493b25;
-$primary: #EC915A;
-$active-primary: #897940;
-$error: rgb(193, 0, 0);
-$translucent-error: rgba(183, 125, 125, 0.35);
-$hover : #EC915A;
-
-$green: #897940;
-$blue: #414187;
-$orange: #EC915A;
-$purple: #E98A98;
-
-$room-colors: $green, $blue, $orange, $purple;
+$background: #040406;
+$primary: #add8e6;
+$secondary: #69bfdb;
+$yellow: #ffe484;
 
 /* Fonts */
 
-$font-family-default: 'InterTight', sans-serif;
+$font-family-default: 'SpaceMono', sans-serif;
 $font-family-secondary: Times, serif;
 $font-weight-normal: 400;
 $font-weight-medium: 500;

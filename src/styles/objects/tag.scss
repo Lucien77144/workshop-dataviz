@@ -1,0 +1,21 @@
+.tag {
+    cursor: url('../img/cursorPointer.svg'), pointer;
+
+    font-size: calc(1rem + .25vw);
+    color: $yellow;
+    padding: .25rem .75rem;
+    border: 1px solid $yellow;
+    border-radius: 5rem;
+    box-shadow: 4px 4px 0px $yellow;
+
+    transition: .25s ease-in-out;
+    will-change: box-shadow, color, background-color;
+    &:hover {
+        box-shadow: 0px 0px 0px $yellow;
+    }
+    &.active {
+        box-shadow: 0px 0px 0px $yellow;
+        color: $background;
+        background-color: $yellow;
+    }
+}
