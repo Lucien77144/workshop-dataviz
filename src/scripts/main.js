@@ -45,8 +45,9 @@ window.addEventListener( 'resize', ()=>{
 });
 
 renderer.setSize( sizes.width, sizes.height );
-document.body.appendChild( renderer.domElement );
 renderer.setPixelRatio( window.devicePixelRatio );
+renderer.setClearColor( 0x0000ff, .1);
+document.body.appendChild( renderer.domElement );
 
 fetch('http://localhost:1234/data/data.json').then(response => {
     return response.json();
@@ -85,9 +86,8 @@ document.addEventListener('click', (e) => {
             selectedUnits.splice(selectedUnits.indexOf(unit), 1);
         }
     }
+    manageOpacity();
 });
-
-camera.position.z = 5;
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
 scene.add(ambientLight)
@@ -96,7 +96,7 @@ const light = new THREE.PointLight(0xffffff, 0.5)
 light.position.x = 2
 light.position.y = 3
 light.position.z = 4
-scene.add(light)
+scene.add(light);
 
 const renderScene = new RenderPass( scene, camera );
 const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
@@ -104,7 +104,7 @@ bloomPass.threshold = bloomParams.bloomThreshold;
 bloomPass.strength = bloomParams.bloomStrength;
 bloomPass.radius = bloomParams.bloomRadius;
 
-composer = new EffectComposer( renderer );
+const composer = new EffectComposer( renderer );
 composer.addPass( renderScene );
 composer.addPass( bloomPass );
 
@@ -143,7 +143,10 @@ const animate = function () {
             } else {
                 line.meshOrigin.flag = false;
             }
-        })
+            if (selectedUnits.length == 2) {
+                line.material.opacity = .5;
+            }
+        });
     });
 
     camera.lookAt( scene.position );
@@ -156,12 +159,19 @@ animate();
 // ------------------------------//
 
 // Generate :
-function generateUnit(data, color="lightblue") {
+function generateUnit(data, color="#ADD8E6") {
     const geometry = new THREE.DodecahedronGeometry( 1, 0 );
+    const geometry2 = new THREE.DodecahedronGeometry( .5, 0 );
+
     const material = new THREE.MeshStandardMaterial({
         color: color, 
+        transparent: true
     });
+    
     const mesh = new THREE.Mesh( geometry, material );
+    const mesh2 = new THREE.Mesh( geometry2, material );
+
+    mesh.material.side = THREE.BackSide;
 
     const limitX = (sizes.width - (sizes.width * .05)) / 20;
     const limitY = (sizes.height - (sizes.height * .05)) / 20;
@@ -169,6 +179,8 @@ function generateUnit(data, color="lightblue") {
     mesh.position.x = (Math.random() * limitX - limitX / 2) * Math.cos(Math.random() * 360);
     mesh.position.y = (Math.random() * limitY - limitY / 2) * Math.sin(Math.random() * 360);
     mesh.position.z = Math.random() * ((limitY + limitY) / 2) - ((limitY + limitY) / 4);
+
+    mesh2.position.set(mesh.position.x, mesh.position.y, mesh.position.z);
 
     for (let i = 0; i < unitList.length; i++) {
         if(checkCollision(mesh, unitList[i])) {
@@ -179,6 +191,7 @@ function generateUnit(data, color="lightblue") {
     mesh.isData = true;
 
     scene.add( mesh );
+    scene.add( mesh2 );
     unitList.push(mesh);
 }
 function generateLinks(mesh) {
@@ -190,7 +203,7 @@ function generateLinks(mesh) {
         })
     })
 }
-function buildLink(mesh1, mesh2, color="red") {
+function buildLink(mesh1, mesh2, color="#ffc9c9") {
     lineList[mesh1.id] = lineList[mesh1.id] || [];
     if (lineList[mesh1.id].filter((e) => e.meshDestination.id === mesh2.id).length > 0) return;
 
@@ -206,6 +219,7 @@ function buildLink(mesh1, mesh2, color="red") {
     );
     let material = new THREE.MeshBasicMaterial({
         color: color,
+        transparent: true,
     });
 
     const line = new THREE.Mesh(geometry, material);
@@ -244,5 +258,13 @@ function removeLines(mesh) {
         line.removeLine = true;
     });
     mesh.flag = false;
-    // lineList[mesh.id] = [];
+}
+function manageOpacity() {
+    unitList.forEach(e => {
+        if (selectedUnits.includes(e) || selectedUnits.length < 2) {
+            e.material.opacity = 1;
+        } else {
+            e.material.opacity = .15;
+        }
+    });
 }
