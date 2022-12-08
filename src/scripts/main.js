@@ -4,6 +4,10 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
+import cursor from '../img/cursor.svg';
+import cursorPointer from '../img/cursorPointer.svg';
+import cursorClick from '../img/cursorClick.svg';
+
 if(!THREE) throw new Error('THREE is not defined');
 
 const sizes = {
@@ -25,15 +29,26 @@ const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
 const camera = new THREE.PerspectiveCamera( 75, sizes.width / sizes.height, 0.1, 1000 );
 const controls = new OrbitControls( camera, renderer.domElement );
+const mouse = new THREE.Vector2();
 
 let unitList = [];
 let lineList = [];
 let selectedUnits = [];
+let lastHovered;
 
 let lastMove = Date.now();
 window.addEventListener( 'mousemove', (e) => {
     lastMove = Date.now();
-})
+
+    mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+});
+window.addEventListener('mousedown', (e) => {
+    document.body.style.cursor = `url(${cursorClick}), pointer`;
+});
+window.addEventListener('mouseup', (e) => {
+    document.body.style.cursor = `url(${cursorPointer}), pointer`;
+});
 
 window.addEventListener( 'resize', ()=>{
     sizes.width = window.innerWidth;
@@ -76,13 +91,13 @@ document.addEventListener('click', (e) => {
             generateLinks(unit);
 
         } else if ((selectedUnits.length === 2) && !selectedUnits.includes(unit)) {
-            removeLines(selectedUnits[selectedUnits.length-1]);
+            removeLinks(selectedUnits[selectedUnits.length-1]);
             generateLinks(unit);
             selectedUnits.splice(-1);
             selectedUnits.push(unit);
             
         } else if (selectedUnits.includes(unit)) {
-            removeLines(unit);
+            removeLinks(unit);
             selectedUnits.splice(selectedUnits.indexOf(unit), 1);
         }
     }
@@ -112,12 +127,13 @@ let cos = 0;
 const animate = function () {
     requestAnimationFrame(animate);
 
+    manageMouseHover();
+
     if (Date.now() - lastMove > 2000) {
         if(speedCamera.current < speedCamera.max) speedCamera.current += 10;
     } else {
         if(speedCamera.current > speedCamera.min) speedCamera.current -= 20;
     }
-
 
     const speed = .1+Math.abs((speedCamera.current / 1000));
     cos += speed*.01;
@@ -149,6 +165,14 @@ const animate = function () {
         });
     });
 
+    // randomly rotate units
+    unitList.forEach(unit => {
+        if (unit.isData) {
+            unit.rotation.x += (Math.random()*.02)-.01;
+            unit.rotation.y += 0.01;
+        }
+    });
+
     camera.lookAt( scene.position );
     composer.render();
 }
@@ -161,7 +185,6 @@ animate();
 // Generate :
 function generateUnit(data, color="#ADD8E6") {
     const geometry = new THREE.DodecahedronGeometry( 1, 0 );
-    const geometry2 = new THREE.DodecahedronGeometry( .5, 0 );
 
     const material = new THREE.MeshStandardMaterial({
         color: color, 
@@ -169,8 +192,6 @@ function generateUnit(data, color="#ADD8E6") {
     });
     
     const mesh = new THREE.Mesh( geometry, material );
-    const mesh2 = new THREE.Mesh( geometry2, material );
-
     mesh.material.side = THREE.BackSide;
 
     const limitX = (sizes.width - (sizes.width * .05)) / 20;
@@ -179,8 +200,6 @@ function generateUnit(data, color="#ADD8E6") {
     mesh.position.x = (Math.random() * limitX - limitX / 2) * Math.cos(Math.random() * 360);
     mesh.position.y = (Math.random() * limitY - limitY / 2) * Math.sin(Math.random() * 360);
     mesh.position.z = Math.random() * ((limitY + limitY) / 2) - ((limitY + limitY) / 4);
-
-    mesh2.position.set(mesh.position.x, mesh.position.y, mesh.position.z);
 
     for (let i = 0; i < unitList.length; i++) {
         if(checkCollision(mesh, unitList[i])) {
@@ -191,10 +210,11 @@ function generateUnit(data, color="#ADD8E6") {
     mesh.isData = true;
 
     scene.add( mesh );
-    scene.add( mesh2 );
     unitList.push(mesh);
 }
 function generateLinks(mesh) {
+    mesh.material.color.set(0x69bfdb);
+
     const userGroups = [mesh.userData.gender, mesh.userData.format, mesh.userData.platform];
     userGroups.forEach((group) => {
         const groupList = unitList.filter(e => Object.values(e.userData).includes(group));
@@ -253,7 +273,9 @@ function scaleLine(line) {
         line.meshOrigin.position.z * (1 - line.actions.scale)
     );
 }
-function removeLines(mesh) {
+function removeLinks(mesh) {
+    mesh.material.color.set(0xADD8E6);
+
     lineList[mesh.id].forEach(line => {
         line.removeLine = true;
     });
@@ -267,4 +289,26 @@ function manageOpacity() {
             e.material.opacity = .15;
         }
     });
+}
+function manageMouseHover() {
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera( mouse, camera );
+
+    const intersects = raycaster.intersectObjects( scene.children );
+    if(intersects.length > 0) {
+        const unit = intersects[0].object;
+        if(!unit.isData || unit.flag) return;
+        unit.material.color.set(0x69bfdb);
+        document.body.style.cursor = `url(${cursorPointer}), pointer`;
+        
+        if(lastHovered && (lastHovered !== unit) && !selectedUnits.includes(lastHovered)) {
+            lastHovered.material.color.set(0xADD8E6);
+        }
+        lastHovered = unit;
+    } else {
+        if(!selectedUnits.includes(lastHovered)) {
+            lastHovered?.material.color.set(0xADD8E6);
+        }
+        document.body.style.cursor = `url(${cursor}), pointer`;
+    }
 }

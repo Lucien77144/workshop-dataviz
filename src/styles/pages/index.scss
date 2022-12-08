@@ -1,7 +1,9 @@
 html,
 body {
-  cursor: url('../img/cursor.svg'), pointer;
-  background-color: green;
+  cursor: url('../img/cursor.svg'), auto;
+  cursor: url('../img/cursorPointer.svg'), pointer;
+  cursor: url('../img/cursorClick.svg'), auto;
+  background-color: #08041c;
 }
 
 .overlay {
@@ -10,4 +12,16 @@ body {
   top: 0;
   left: 0;
   z-index: 10;
+
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  .line {
+    display: flex;
+    justify-content: space-between;
+  }
 }
