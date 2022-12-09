@@ -161,6 +161,10 @@ canvas {
 
     .menu2 {
       display: none;
+      h3 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
       .field {
         &-empty {
           font-size: 1.35rem;
@@ -168,25 +172,35 @@ canvas {
         &-item {  
           display: flex;
           justify-content: space-between;
-          h3 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-          }
           p {
             font-size: 1.35rem;
           }
           .values {
-            display: flex;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-areas: "a b";
             .pin {
               margin-left: .5rem;
             }
+            .label {
+              grid-area: b;
+            }
             .value {
+              margin-left: 2rem;
+              grid-area: a;
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;
             }
           }
         }
+      }
+      .plus {
+        width: 100%;
+        text-align: center;
+        margin: 1rem 0;
+        font-size: 2rem;
+        line-height: 2rem;
       }
     }
 

@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeFilter = undefined;
         buildInfosPanel(lastHovered.userData[activeFilter]);
         coloriseUnitFromFilter([]);
+        resetUnits();
     });
 
     document.querySelectorAll('.tag').forEach(tag => {
@@ -525,6 +526,14 @@ function buildLines(data) {
     } else {
         return '<p class="field-empty">Selectionnez une donnée</p>';
     }
+}
+function resetUnits() {
+    selectedUnits.forEach(e => {
+        e.flag = true;
+        removeLinks(e);
+    });
+    selectedUnits = [];
+    manageOpacity();
 }
 
 // get data : 
