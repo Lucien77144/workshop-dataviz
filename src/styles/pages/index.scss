@@ -161,6 +161,33 @@ canvas {
 
     .menu2 {
       display: none;
+      .field {
+        &-empty {
+          font-size: 1.35rem;
+        }
+        &-item {  
+          display: flex;
+          justify-content: space-between;
+          h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+          }
+          p {
+            font-size: 1.35rem;
+          }
+          .values {
+            display: flex;
+            .pin {
+              margin-left: .5rem;
+            }
+            .value {
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
+        }
+      }
     }
 
     .section {

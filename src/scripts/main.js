@@ -23,11 +23,27 @@ const speedCamera = {
     max: 1000,
     min: 0,
 };
+const dataLabels = {
+    age: 'Âge',
+    gender: "Genre",
+    format: "Format",
+    platform: "Plateforme",
+    alone: "Visionnage",
+    day_watching: "Moment",
+    artist: "Artiste",
+    movie: "Film",
+    character: "Personnage",
+}
 
 const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
 const camera = new THREE.PerspectiveCamera( 75, sizes.width / sizes.height, 0.1, 1000 );
 const mouse = new THREE.Vector2();
+
+renderer.setSize( sizes.width, sizes.height );
+renderer.setPixelRatio( window.devicePixelRatio );
+renderer.setClearColor( 0x0000ff, .1);
+const canvas = document.body.appendChild( renderer.domElement );
 
 let userList = [];
 let unitList = [];
@@ -98,11 +114,6 @@ window.addEventListener( 'resize', ()=>{
     renderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) );
 });
 
-renderer.setSize( sizes.width, sizes.height );
-renderer.setPixelRatio( window.devicePixelRatio );
-renderer.setClearColor( 0x0000ff, .1);
-const canvas = document.body.appendChild( renderer.domElement );
-
 fetch('http://localhost:1234/data/data.json').then(response => {
     return response.json();
 }).then(json => {
@@ -147,7 +158,8 @@ document.addEventListener('click', (e) => {
         }
     }
     manageOpacity();
-    coloriseUnitFromFilter(filtredValues)
+    coloriseUnitFromFilter(filtredValues);
+    buildUserData();
 });
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
@@ -207,7 +219,7 @@ const animate = function () {
                 line.meshOrigin.flag = false;
             }
             if (selectedUnits.length == 2) {
-                line.material.opacity = .5;
+                line.material.opacity = .6;
             }
         });
     });
@@ -258,7 +270,7 @@ function generateUnit(data, color="#ADD8E6") {
     unitList.push(mesh);
 }
 function generateLinks(mesh) {
-    mesh.material.color.set(0x69bfdb);
+    mesh.material.color.set(0xffe484);
 
     const userGroups = [mesh.userData.gender, mesh.userData.format, mesh.userData.platform];
     userGroups.forEach((group) => {
@@ -324,7 +336,6 @@ function removeLinks(mesh) {
     lineList[mesh.id].forEach(line => {
         line.removeLine = true;
     });
-    mesh.flag = false;
 }
 function manageOpacity() {
     unitList.forEach(e => {
@@ -346,7 +357,7 @@ function manageMouseHover() {
         const unit = intersects[0].object;
         if(!unit.isData || unit.flag) return;
         if (!unit.colorized) {
-            unit.material.color.set(0x69bfdb);
+            unit.material.color.set(0xffe484);
         }
         document.body.style.cursor = `url(${cursorPointer}), pointer`;
         
@@ -419,7 +430,7 @@ function manageStats() {
     }
 }
 function coloriseUnitFromFilter(values) {
-    if (unitList.length === values.length) return;
+    if (unitList?.length === values?.length) return;
     if (selectedUnits.length > 0) {
         return unitList.forEach(e => {
             e.colorized = false;
@@ -487,8 +498,39 @@ function buildCircles(filtredValues = userList) {
     document.querySelector('.section-infos .viewing .circle.many').innerHTML = total-alone;
 
 }
+function buildUserData() {
+    const data1 = selectedUnits[0]?.userData;
+    const data2 = selectedUnits[1]?.userData;
+
+    document.querySelector(".stats .menu2 .data1 .field").innerHTML = buildLines(data1);
+    document.querySelector(".stats .menu2 .data2 .field").innerHTML = buildLines(data2);
+}
+function buildLines(data) {
+    if (data) {
+        result = '';
+        data.alone = data.alone ? 'Seul' : 'Accompagné';
+        data.day_watching = data.day_watching ? 'En journée' : 'En soirée';
+        for (const [key, value] of Object.entries(data)) {
+            if (!value) break;
+            const filtredData = filterData(data, key);
+            result += `<div class="field-item">
+                <p class='label'>${dataLabels[key]}</p>
+                <div class='values'>
+                    <p class='value'>${value}</p>
+                    <p class='pin counter'>${filtredData?.length ? filtredData.length : 1}</p>
+                </div>
+            </div>`;
+        }
+        return result;
+    } else {
+        return '<p class="field-empty">Selectionnez une donnée</p>';
+    }
+}
 
 // get data : 
 function getDiffAges(users) {
     return users.map(user => user.age).filter((age, index, self) => self.indexOf(age) === index);
+}
+function filterData(user, filter) {
+    return userList.filter(e => e[filter] === user[filter]);
 }

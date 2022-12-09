@@ -1,0 +1,14 @@
+.pin {
+    color: $bg;
+    border-radius: 100vw;
+    background-color: $yellow;
+
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
