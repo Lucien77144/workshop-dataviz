@@ -40,9 +40,8 @@ let activeFilter;
 let filtredValues;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const intro = document.querySelector('.intro');
-    intro?.addEventListener('click', () => {
-        intro.animate([
+    document.querySelector('.intro .btn-start')?.addEventListener('click', () => {
+        document.querySelector('.intro').animate([
             {opacity: 1, transform: 'scale(1)'},
             {opacity: 0, transform: 'scale(1.2)'}
         ], {
@@ -51,8 +50,16 @@ document.addEventListener('DOMContentLoaded', () => {
             fill: 'forwards'
         });
         setTimeout(() => {
-            intro.remove();
+            document.querySelector('.intro').remove();
+            document.querySelector('.stats').classList.add('active');
         }, 1000);
+    });
+
+    document.querySelector('.btn-reset').addEventListener('click', (e) => {
+        document.querySelector('.tag.active')?.classList.remove('active');
+        activeFilter = undefined;
+        buildInfosPanel(lastHovered.userData[activeFilter]);
+        coloriseUnitFromFilter([]);
     });
 
     document.querySelectorAll('.tag').forEach(tag => {
@@ -60,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.classList.contains('active')) {
                 e.target.classList.remove('active');
                 activeFilter = undefined;
+                buildInfosPanel(lastHovered.userData[activeFilter]);
             } else {
                 document.querySelector('.tag.active')?.classList.remove('active');
                 e.target.classList.add('active');
@@ -421,6 +429,10 @@ function buildCircles(filtredValues = userList) {
 
     document.querySelector('.section-infos .viewing .circle.many').style.width = `${maxCircleSize*sizeMany}px`;
     document.querySelector('.section-infos .viewing .circle.many').style.height = `${maxCircleSize*sizeMany}px`;
+
+    
+    document.querySelector('.section-infos .viewing .circle.alone').innerHTML = alone;
+    document.querySelector('.section-infos .viewing .circle.many').innerHTML = total-alone;
 
 }
 

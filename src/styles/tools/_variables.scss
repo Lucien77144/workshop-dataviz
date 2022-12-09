@@ -2,10 +2,27 @@
 
 /* Colors */
 
-$background: #040406;
-$primary: #add8e6;
-$secondary: #69bfdb;
-$yellow: #ffe484;
+:root {
+    --bg: #040406;
+    --bg35: #0404065b;
+    --bg75: #040406bc;
+    --primary: #add8e6;
+    --secondary: #69bfdb;
+    --yellow: #ffe484;
+    --yellow50: #ffe48482;
+    --yellow75: #ffe484b6;
+    --white: #ffffff;
+}
+
+$bg: var(--bg);
+$bg35: var(--bg35);
+$bg75: var(--bg75);
+$primary: var(--primary);
+$secondary: var(--secondary);
+$yellow: var(--yellow);
+$yellow50: var(--yellow50);
+$yellow75: var(--yellow75);
+$white: var(--white);
 
 /* Fonts */
 
