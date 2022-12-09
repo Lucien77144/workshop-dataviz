@@ -185,7 +185,7 @@ canvas {
         .ages {
           list-style: none;
           margin-top: .5rem;
-          max-height: 135px;
+          height: 125px;
           overflow: auto;
           .unit {
             display: flex;
@@ -251,6 +251,52 @@ canvas {
                 }
               }
             }
+          }
+        }
+        .viewing {
+          padding-bottom: 3rem;
+          &-title {
+            margin: 1rem 0;
+            font-size: 1.2rem;
+          }
+          &-schema {
+            display: flex;
+            justify-content: space-around;
+
+            .circle {
+              transition: .25s ease-in-out;
+              will-change: height, width;
+              border-radius: 100%;
+              border: 2px solid $yellow;
+              min-width: 35px;
+              min-height: 35px;
+              height: 35px;
+              width: 35px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              position: relative;
+              &.alone::after {
+                content: "Seul";
+                transform: translate(-50%, 100%);
+                position: absolute;
+                left: 50%;
+                bottom: -1rem;
+                font-size: 1.2rem;
+              }
+              &.many::after {
+                content: "Accompagné";
+                transform: translate(-50%, 100%);
+                position: absolute;
+                left: 50%;
+                bottom: -1rem;
+                font-size: 1.2rem;
+              }
+            }
+          }
+          &-label {
+            display: flex;
+            justify-content: space-around;
           }
         }
       }

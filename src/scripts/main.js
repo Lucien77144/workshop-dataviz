@@ -34,8 +34,10 @@ let unitList = [];
 let lineList = [];
 let selectedUnits = [];
 let lastHovered;
+let isStatsActive;
 let lastMove = Date.now();
 let activeFilter;
+let filtredValues;
 
 document.addEventListener('DOMContentLoaded', () => {
     const intro = document.querySelector('.intro');
@@ -72,7 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener( 'mousemove', (e) => {
-    if (document.querySelector('.intro') || (e.path.filter(el => (el.classList?.contains('stats'))).length > 0)) return;
+    isStatsActive = (e.path.filter(el => (el.classList?.contains('stats'))).length > 0)
+    if (document.querySelector('.intro') || isStatsActive) return;
     lastMove = Date.now();
 
     mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
@@ -105,7 +108,8 @@ fetch('http://localhost:1234/data/data.json').then(response => {
 });
 
 document.addEventListener('click', (e) => {
-    if (document.querySelector('.intro') || (e.path.filter(el => (el.classList?.contains('stats'))).length > 0)) return;
+    isStatsActive = (e.path.filter(el => (el.classList?.contains('stats'))).length > 0)
+    if (document.querySelector('.intro') || isStatsActive) return;
     const mouse = new THREE.Vector2();
     mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
@@ -135,6 +139,7 @@ document.addEventListener('click', (e) => {
         }
     }
     manageOpacity();
+    coloriseUnitFromFilter(filtredValues)
 });
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
@@ -323,7 +328,7 @@ function manageOpacity() {
     });
 }
 function manageMouseHover() {
-    if (document.querySelector('.intro')) return;
+    if (document.querySelector('.intro') || isStatsActive) return;
 
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera( mouse, camera );
@@ -332,34 +337,63 @@ function manageMouseHover() {
     if(intersects.length > 0) {
         const unit = intersects[0].object;
         if(!unit.isData || unit.flag) return;
-        unit.material.color.set(0x69bfdb);
+        if (!unit.colorized) {
+            unit.material.color.set(0x69bfdb);
+        }
         document.body.style.cursor = `url(${cursorPointer}), pointer`;
         
         if(lastHovered && (lastHovered !== unit) && !selectedUnits.includes(lastHovered)) {
-            lastHovered.material.color.set(0xADD8E6);
+            if (!lastHovered.colorized) {
+                lastHovered.material.color.set(0xADD8E6);
+            }
         }
         lastHovered = unit;
+        buildInfosPanel(lastHovered.userData[activeFilter]);
     } else {
         if(!selectedUnits.includes(lastHovered)) {
-            lastHovered?.material.color.set(0xADD8E6);
+            if (!lastHovered?.colorized) {
+                lastHovered?.material.color.set(0xADD8E6);
+            }
         }
         document.body.style.cursor = `url(${cursor}), pointer`;
     }
 }
-function buildInfosPanel(values) {
-    const filtredValues = userList.filter(user => user[activeFilter] === values);
-    buildInfos(values, filtredValues.length);
-    buildAges(getDiffAges(filtredValues));
+function coloriseUnitFromFilter(values) {
+    if (unitList.length === values.length) return;
+    if (selectedUnits.length > 0) {
+        return unitList.forEach(e => {
+            e.colorized = false;
+            if ((lastHovered != e) && !selectedUnits.includes(e)) {
+                e.material.color.set(0xADD8E6);
+            }
+        });
+    };
+
+    unitList.forEach(e => {
+        e.colorized = false;
+        e.material.color.set(0xADD8E6);
+        if(values.includes(e.userData)) {
+            e.colorized = true;
+            e.material.color.set(0xffe484);
+        }
+    });
 }
-function buildAges(data) {
+function buildInfosPanel(values) {
+    filtredValues = userList.filter(user => user[activeFilter] === values);
+    buildInfos(values, filtredValues.length);
+    buildAges(getDiffAges(filtredValues), filtredValues);
+    buildCircles(filtredValues);
+    coloriseUnitFromFilter(filtredValues);
+}
+function buildAges(data, filtredList = userList) {
     let htmlResult = '';
     data.forEach((e) => {
-        const frequency = userList.filter((user) => user.age === e).length;
+        const frequency = filtredList.filter((user) => user.age === e).length;
         htmlResult += `
         <li class="unit">
             <div class="label">${e} ans</div>
             <div class="progress">
-                <div class="value" style="width: ${frequency/userList.length*100}%;"></div>
+                <div class="value" style="width: ${frequency/filtredList.length*100}%;"></div>
                 <div class="bubble">
                     <img src="${bubble}" alt="">
                     <span>${frequency}</span>
@@ -369,9 +403,25 @@ function buildAges(data) {
     });
     document.querySelector('.ages').innerHTML = htmlResult;
 }
-function buildInfos(gender='aucun', number=0) {
+function buildInfos(gender='Aucun filtre', number=0) {
     document.querySelector('.section-infos .gender .field').innerHTML = gender;
     document.querySelector('.section-infos .number .field').innerHTML = number;
+}
+function buildCircles(filtredValues = userList) {
+    const maxCircleSize = 125;
+
+    const alone = filtredValues.filter(e => e.alone).length;
+    const total = filtredValues.length;
+
+    const sizeAlone = alone/total;
+    const sizeMany = (total-alone)/total;
+
+    document.querySelector('.section-infos .viewing .circle.alone').style.width = `${maxCircleSize*sizeAlone}px`;
+    document.querySelector('.section-infos .viewing .circle.alone').style.height = `${maxCircleSize*sizeAlone}px`;
+
+    document.querySelector('.section-infos .viewing .circle.many').style.width = `${maxCircleSize*sizeMany}px`;
+    document.querySelector('.section-infos .viewing .circle.many').style.height = `${maxCircleSize*sizeMany}px`;
+
 }
 
 // get data : 
