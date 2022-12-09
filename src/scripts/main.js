@@ -174,6 +174,7 @@ const animate = function () {
     requestAnimationFrame(animate);
 
     manageMouseHover();
+    manageStats();
 
     if (Date.now() - lastMove > 2000) {
         if(speedCamera.current < speedCamera.max) speedCamera.current += 10;
@@ -211,7 +212,6 @@ const animate = function () {
         });
     });
 
-    // randomly rotate units
     unitList.forEach(unit => {
         if (unit.isData) {
             unit.rotation.x += (Math.random()*.02)-.01;
@@ -364,6 +364,58 @@ function manageMouseHover() {
             }
         }
         document.body.style.cursor = `url(${cursor}), pointer`;
+    }
+}
+function manageStats() {
+    const menu1 = document.querySelector('.menu1');
+    const menu2 = document.querySelector('.menu2');
+
+    if (selectedUnits?.length > 0) {
+        if(menu1.classList.contains('active')) {
+            menu1.classList.remove('active');
+            menu1.animate([
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(150%)' }
+            ], {
+                duration: 500,
+                easing: 'ease-in-out',
+            });
+            setTimeout(() => {
+                menu1.style.display = 'none';
+                menu2.style.display = 'block';
+                menu2.classList.add('active');
+                menu2.animate([
+                    { transform: 'translateX(150%)' },
+                    { transform: 'translateX(0)' }
+                ], {
+                    duration: 500,
+                    easing: 'ease-in-out',
+                });
+            }, 500);
+        }
+    } else {
+        if (menu2.classList.contains('active')) {
+            menu2.classList.remove('active');
+            menu2.animate([
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(150%)' }
+            ], {
+                duration: 500,
+                easing: 'ease-in-out',
+            });
+            setTimeout(() => {
+                menu2.style.display = 'none';
+                menu1.style.display = 'block';
+                menu1.classList.add('active');
+                menu1.animate([
+                    { transform: 'translateX(150%)' },
+                    { transform: 'translateX(0)' }
+                ], {
+                    duration: 500,
+                    easing: 'ease-in-out',
+                });
+            }, 500);
+        }
     }
 }
 function coloriseUnitFromFilter(values) {
