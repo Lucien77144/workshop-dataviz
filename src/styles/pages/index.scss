@@ -159,8 +159,45 @@ canvas {
     width: 100%;
     background-color: $bg35;
 
+    .menu1 {
+      overflow: auto;
+    }
+
     .menu2 {
       display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      overflow: auto;
+      padding-right: .25rem;
+
+      &-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .btn-match {
+          &.active {
+            visibility: visible;
+            opacity: 1;
+            transform: scaleY(1);
+          }
+          opacity: 0;
+          transform: scaleY(0);
+          transform-origin: bottom;
+          will-change: transform, opacity;
+          margin: 1rem 0;
+        }
+
+        .disclaimer {
+          display: flex;
+          align-items: center;
+          .content {
+            margin-left: 1rem;
+            font-size: 1rem;
+          }
+        }
+      }
       h3 {
         font-size: 2rem;
         margin-bottom: 1rem;
@@ -172,8 +209,18 @@ canvas {
         &-item {  
           display: flex;
           justify-content: space-between;
+          margin: .25rem 0;
           p {
             font-size: 1.35rem;
+          }
+          .label-container {
+            display: flex;
+            .star {
+              margin: auto 0;
+              margin-right: .25rem;
+              height: 2.25rem;
+              width: 2.25rem;
+            }
           }
           .values {
             display: grid;
@@ -198,7 +245,7 @@ canvas {
       .plus {
         width: 100%;
         text-align: center;
-        margin: 1rem 0;
+        margin: .5rem 0;
         font-size: 2rem;
         line-height: 2rem;
       }

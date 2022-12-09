@@ -6,6 +6,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import cursor from '../img/cursor.svg';
 import cursorPointer from '../img/cursorPointer.svg';
 import bubble from '../img/bubble.svg';
+import star from '../img/star.svg';
 
 if(!THREE) throw new Error('THREE is not defined');
 
@@ -76,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeFilter = undefined;
         buildInfosPanel(lastHovered.userData[activeFilter]);
         coloriseUnitFromFilter([]);
-        resetUnits();
+        resetSelectedUnits();
     });
 
     document.querySelectorAll('.tag').forEach(tag => {
@@ -95,7 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-    })
+    });
+
+    document.querySelector('.btn-match').addEventListener('click', (e) => {
+        
+    });
+
 });
 
 window.addEventListener( 'mousemove', (e) => {
@@ -157,6 +163,19 @@ document.addEventListener('click', (e) => {
             removeLinks(unit);
             selectedUnits.splice(selectedUnits.indexOf(unit), 1);
         }
+
+        setTimeout(() => {
+            if(selectedUnits.length === 2) {
+                if(!document.querySelector(".btn-match").classList.contains("active")) {
+                    document.querySelector(".btn-match").classList.add("active");
+                }
+            } else {
+                if(document.querySelector(".btn-match").classList.contains("active")) {
+                    document.querySelector(".btn-match").classList.remove("active");
+                }
+            }
+        }, 250);
+
     }
     manageOpacity();
     coloriseUnitFromFilter(filtredValues);
@@ -394,7 +413,7 @@ function manageStats() {
             });
             setTimeout(() => {
                 menu1.style.display = 'none';
-                menu2.style.display = 'block';
+                menu2.style.display = 'flex';
                 menu2.classList.add('active');
                 menu2.animate([
                     { transform: 'translateX(150%)' },
@@ -515,7 +534,10 @@ function buildLines(data) {
             if (!value) break;
             const filtredData = filterData(data, key);
             result += `<div class="field-item">
-                <p class='label'>${dataLabels[key]}</p>
+                <div class="label-container">
+                    ${ ['movie', 'character', 'artist'].includes(key) ? `<img class="star" src="${star}" alt="">` : '' }
+                    <p class='label'>${dataLabels[key]}</p>
+                </div>
                 <div class='values'>
                     <p class='value'>${value}</p>
                     <p class='pin counter'>${filtredData?.length ? filtredData.length : 1}</p>
@@ -527,7 +549,7 @@ function buildLines(data) {
         return '<p class="field-empty">Selectionnez une donnée</p>';
     }
 }
-function resetUnits() {
+function resetSelectedUnits() {
     selectedUnits.forEach(e => {
         e.flag = true;
         removeLinks(e);
