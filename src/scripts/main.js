@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener( 'mousemove', (e) => {
-    isStatsActive = (e.path.filter(el => (el.classList?.contains('stats'))).length > 0)
+    isStatsActive = (e.path?.filter(el => (el.classList?.contains('stats'))).length > 0)
     if (document.querySelector('.intro') || isStatsActive) return;
     lastMove = Date.now();
 
@@ -121,7 +121,7 @@ window.addEventListener( 'resize', ()=>{
     renderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) );
 });
 
-fetch('http://localhost:1234/data/data.json').then(response => {
+fetch('/data/data.json').then(response => {
     return response.json();
 }).then(json => {
     json.users.forEach(data => {
@@ -134,7 +134,7 @@ fetch('http://localhost:1234/data/data.json').then(response => {
 });
 
 document.addEventListener('click', (e) => {
-    isStatsActive = (e.path.filter(el => (el.classList?.contains('stats'))).length > 0)
+    isStatsActive = (e.path?.filter(el => (el.classList?.contains('stats'))).length > 0)
     if (document.querySelector('.intro') || isStatsActive) return;
     const mouse = new THREE.Vector2();
     mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
@@ -527,7 +527,7 @@ function buildUserData() {
 }
 function buildLines(data) {
     if (data) {
-        result = '';
+        let result = '';
         data.alone = data.alone ? 'Seul' : 'Accompagné';
         data.day_watching = data.day_watching ? 'En journée' : 'En soirée';
         for (const [key, value] of Object.entries(data)) {
